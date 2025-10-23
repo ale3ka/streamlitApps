@@ -46,16 +46,28 @@ st.markdown("""
 def load_and_process_data():
     """Load and process the household income data from the CSV format"""
     try:
-        # Get the path to the CSV file in the same directory
+        # Get the path to the CSV file - use relative path from app.py location
         csv_path = os.path.join(os.path.dirname(__file__), '12241-0001_en.csv')
         
-        # Read the file line by line and parse manually
+        if not os.path.exists(csv_path):
+            st.warning("CSV file not found in the expected location. Please upload the file:")
+            uploaded_file = st.file_uploader("Choose a CSV file", type="csv", key="csv_uploader")
+            if uploaded_file is not None:
+                # Use uploaded file
+                lines = uploaded_file.read().decode('utf-8-sig').splitlines()
+            else:
+                st.error(f"CSV file not found at: {csv_path}")
+                st.write("Please ensure the CSV file is in the same directory as the app.py file or upload it above")
+                return None, None
+        else:
+            # Read from file system
+            with open(csv_path, 'r', encoding='utf-8-sig') as f:
+                lines = f.readlines()
+        
+        # Parse the data line by line
         data_rows = []
         current_year = None
         current_household_type = None
-        
-        with open(csv_path, 'r', encoding='utf-8-sig') as f:
-            lines = f.readlines()
         
         # Skip the first 7 lines (headers) and process data
         for i, line in enumerate(lines[7:], start=7):
@@ -141,7 +153,7 @@ def load_and_process_data():
         
     except Exception as e:
         st.error(f"Error loading data: {str(e)}")
-        st.write(f"Please make sure the CSV file is in the correct location: {csv_path}")
+        st.write("Please ensure the CSV file is in the same directory as app.py or upload it using the file uploader above")
         return None, None
 
 def create_income_comparison_chart(data, selected_households, selected_years):
