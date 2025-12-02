@@ -4,7 +4,7 @@ import random as rn
 import time
 
 # Load CSV and clean column names
-df = pd.read_csv("/questions.csv")
+df = pd.read_csv("questions.csv")
 df.columns = df.columns.str.strip()
 
 # App title
